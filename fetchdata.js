@@ -9,7 +9,6 @@ async function fetchGraphData() {
       body: JSON.stringify({ url: graphDataUrl })
     });
     const result = await response.json();
-    console.log('Fetched data:', result.enriched_graph); // Debug log
     return result.enriched_graph;
   } catch (error) {
     console.error('Error fetching graph data:', error);
@@ -19,7 +18,6 @@ async function fetchGraphData() {
 
 function mergeGraphData(newData) {
   const existingNodes = new Set(Object.keys(graphData));
-  console.log('Merging graph data...', newData); // Debug log
 
   // Update existing nodes or add new nodes
   Object.keys(newData).forEach(key => {
@@ -38,7 +36,6 @@ function mergeGraphData(newData) {
   existingNodes.forEach(key => {
     delete graphData[key];
   });
-  console.log('Merged graph data:', graphData); // Debug log
 }
 
 async function updateGraphData() {

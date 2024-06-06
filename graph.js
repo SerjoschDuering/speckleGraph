@@ -32,7 +32,7 @@ const graphData = {
       data[key].position[1] = (data[key].position[1] - minY) * scaleFactor + 50;
     });
   
-    console.log('Normalized coordinates:', data); // Log normalized data
+
   
     return data;
   }
@@ -96,11 +96,7 @@ const graphData = {
         tooltip.style.left = `${tooltipLeft}px`;
         tooltip.style.top = `${tooltipTop}px`;
   
-        console.log(`Tooltip position: left=${tooltipLeft}, top=${tooltipTop}`);
-        console.log(`Node position: left=${nodeRect.left}, top=${nodeRect.top}`);
-        console.log(`Viewport width=${window.innerWidth}, height=${window.innerHeight}`);
-        console.log(`Tooltip dimensions: width=${tooltipWidth}, height=${tooltipHeight}`);
-        console.log(`Tooltip style: left=${tooltip.style.left}, top=${tooltip.style.top}`);
+
   
         const closeTooltip = () => {
           if (tooltip.parentElement) {
@@ -117,7 +113,6 @@ const graphData = {
   }
   
   function drawConnection(context, from, to) {
-    console.log('Drawing connection from:', from, 'to:', to); // Debugging log
     const fromCenter = { x: from[0] + 75, y: from[1] + 35 };
     const toCenter = { x: to[0] + 75, y: to[1] + 35 };
   
@@ -136,8 +131,7 @@ const graphData = {
       y: toCenter.y - (35 * Math.sin(angle))
     };
   
-    console.log(`fromCenter: ${JSON.stringify(fromCenter)}, toCenter: ${JSON.stringify(toCenter)}`);
-    console.log(`fromEdge: ${JSON.stringify(fromEdge)}, toEdge: ${JSON.stringify(toEdge)}`);
+
   
     context.beginPath();
     context.moveTo(fromEdge.x, fromEdge.y);
@@ -166,7 +160,7 @@ const graphData = {
   }
   
   function updateConnections(context, nodes) {
-    console.log('Updating connections'); // Debugging log
+
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     Object.keys(graphData).forEach(key => {
       const data = graphData[key];
