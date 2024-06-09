@@ -39,78 +39,81 @@ const graphData = {
   
   function createNode(type, name, status, position, additionalInfo, serviceApi) {
     const node = document.createElement('div');
-    node.className = `node ${type === 'method' ? 'method-node' : 'speckle-node'} ${status}`;
+    if (name.startsWith('Method Local')) {
+        node.className = `node method-local-node ${status}`;
+    } else {
+        node.className = `node ${type === 'method' ? 'method-node' : 'speckle-node'} ${status}`;
+    }
     node.style.left = `${position[0]}px`;
     node.style.top = `${position[1]}px`;
-  
+
     if (type === 'speckle') {
-      const branchName = additionalInfo.split('/').pop();
-      node.innerHTML = `<div class="node-text">${name}</div><div class="small-text">${branchName}</div>`;
+        const branchName = additionalInfo.split('/').pop();
+        node.innerHTML = `<div class="node-text">${name}</div><div class="small-text">${branchName}</div>`;
     } else {
-      node.innerHTML = `<div class="node-text">${name}</div><div class="small-text">${serviceApi}</div>`;
+        node.innerHTML = `<div class="node-text">${name}</div><div class="small-text">${serviceApi}</div>`;
     }
-  
+
     // Create drag handle
     const handle = document.createElement('div');
     handle.className = 'drag-handle';
     handle.innerHTML = '☰'; // Using a simple icon for the handle
     node.appendChild(handle);
-  
+
     node.addEventListener('mouseenter', () => handle.style.display = 'block');
     node.addEventListener('mouseleave', () => handle.style.display = 'none');
-  
-    if (type === 'method') {
-      node.querySelector('.node-text').addEventListener('click', () => {
-        node.classList.add('flash');
-        setTimeout(() => node.classList.remove('flash'), 1000);
-      });
-    } else if (type === 'speckle') {
-      node.querySelector('.node-text').addEventListener('click', (event) => {
-        event.stopPropagation();
-  
-        // Remove existing tooltips
-        document.querySelectorAll('.tooltip').forEach(tooltip => tooltip.remove());
-  
-        const tooltip = document.createElement('div');
-        tooltip.className = 'tooltip';
-        tooltip.innerHTML = `
-          <a href="${additionalInfo}" target="_blank">${additionalInfo}</a>
-          <iframe src="https://speckle.xyz/embed?stream=68595ed2d2&commit=abc578dd70&transparent=true&autoload=true&hidecontrols=true&hidesidebar=true" width="600" height="400" frameborder="0"></iframe>
-        `;
-        document.body.appendChild(tooltip);
-  
-        const nodeRect = node.getBoundingClientRect();
-        const tooltipWidth = 640;
-        const tooltipHeight = 460;
-        let tooltipLeft = nodeRect.left + 160;
-        let tooltipTop = nodeRect.top;
-  
-        // Adjust tooltip position to stay within the viewport
-        if (tooltipLeft + tooltipWidth > window.innerWidth) {
-          tooltipLeft = window.innerWidth - tooltipWidth - 20; // 20px padding
-        }
-        if (tooltipTop + tooltipHeight > window.innerHeight) {
-          tooltipTop = window.innerHeight - tooltipHeight - 20; // 20px padding
-        }
-  
-        tooltip.style.left = `${tooltipLeft}px`;
-        tooltip.style.top = `${tooltipTop}px`;
-  
 
-  
-        const closeTooltip = () => {
-          if (tooltip.parentElement) {
-            document.body.removeChild(tooltip);
-            document.removeEventListener('click', closeTooltip);
-          }
-        };
-  
-        setTimeout(() => document.addEventListener('click', closeTooltip), 100);
-      });
+    if (type === 'method') {
+        node.querySelector('.node-text').addEventListener('click', () => {
+            node.classList.add('flash');
+            setTimeout(() => node.classList.remove('flash'), 1000);
+        });
+    } else if (type === 'speckle') {
+        node.querySelector('.node-text').addEventListener('click', (event) => {
+            event.stopPropagation();
+
+            // Remove existing tooltips
+            document.querySelectorAll('.tooltip').forEach(tooltip => tooltip.remove());
+
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            tooltip.innerHTML = `
+              <a href="${additionalInfo}" target="_blank">${additionalInfo}</a>
+              <iframe src="https://speckle.xyz/embed?stream=68595ed2d2&commit=abc578dd70&transparent=true&autoload=true&hidecontrols=true&hidesidebar=true" width="600" height="400" frameborder="0"></iframe>
+            `;
+            document.body.appendChild(tooltip);
+
+            const nodeRect = node.getBoundingClientRect();
+            const tooltipWidth = 640;
+            const tooltipHeight = 460;
+            let tooltipLeft = nodeRect.left + 160;
+            let tooltipTop = nodeRect.top;
+
+            // Adjust tooltip position to stay within the viewport
+            if (tooltipLeft + tooltipWidth > window.innerWidth) {
+                tooltipLeft = window.innerWidth - tooltipWidth - 20; // 20px padding
+            }
+            if (tooltipTop + tooltipHeight > window.innerHeight) {
+                tooltipTop = window.innerHeight - tooltipHeight - 20; // 20px padding
+            }
+
+            tooltip.style.left = `${tooltipLeft}px`;
+            tooltip.style.top = `${tooltipTop}px`;
+
+            const closeTooltip = () => {
+                if (tooltip.parentElement) {
+                    document.body.removeChild(tooltip);
+                    document.removeEventListener('click', closeTooltip);
+                }
+            };
+
+            setTimeout(() => document.addEventListener('click', closeTooltip), 100);
+        });
     }
-  
+
     return { node, handle };
-  }
+}
+
   
   function drawConnection(context, from, to) {
     const fromCenter = { x: from[0] + 75, y: from[1] + 35 };
