@@ -211,41 +211,63 @@ const graphData = {
     updateConnections(context, nodes);
   }
   
-  document.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById('graph-container');
-    const canvas = document.getElementById('connections-canvas');
-    const context = canvas.getContext('2d');
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
+  document.addEventListener('graphDataUpdated', () => {
+    console.log('Updating graph data...');
   
-    let normalizedData = normalizeCoordinates(JSON.parse(JSON.stringify(graphData)));
+    // Normalize the updated graph data
+    const updatedData = normalizeCoordinates(JSON.parse(JSON.stringify(graphData)));
   
-    const nodes = {};
-  
-    // Create and position nodes
-    Object.keys(normalizedData).forEach(key => {
-      const data = normalizedData[key];
-      const type = key.startsWith('Method') ? 'method' : 'speckle';
+    // Update or add nodes
+    Object.keys(updatedData).forEach(key => {
+      const data = updatedData[key];
+      let type;
+      if (key.startsWith('Method Local')) {
+        type = 'method-local';
+      } else {
+        type = key.startsWith('Method') ? 'method' : 'speckle';
+      }
       const status = data.status || 'up-to-date'; // Default to 'up-to-date' if status is missing
-      const { node, handle } = createNode(type, key, status, data.position, data.branchUrl || '2024-05-03 12:22:00', data.args ? data.args.serviceApi : '');
-      container.appendChild(node);
-      nodes[key] = node;
+      
+      if (nodes[key]) {
+        // Update existing node
+        nodes[key].className = `node ${type === 'method' ? 'method-node' : type === 'method-local' ? 'method-local-node' : 'speckle-node'} ${status}`;
+        nodes[key].style.left = `${data.position[0]}px`;
+        nodes[key].style.top = `${data.position[1]}px`;
+      } else {
+        // Add new node
+        const { node, handle } = createNode(type, key, status, data.position, data.branchUrl || '2024-05-03 12:22:00', data.args ? data.args.serviceApi : '');
+        container.appendChild(node);
+        nodes[key] = node;
   
-      interact(handle).draggable({
-        allowFrom: '.drag-handle',
-        onmove(event) {
-          const target = event.target.parentElement;
-          const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-          const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+        interact(handle).draggable({
+          allowFrom: '.drag-handle',
+          onmove(event) {
+            const target = event.target.parentElement;
+            const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+            const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
   
-          target.style.transform = `translate(${x}px, ${y}px)`;
-          target.setAttribute('data-x', x);
-          target.setAttribute('data-y', y);
+            target.style.transform = `translate(${x}px, ${y}px)`;
+            target.setAttribute('data-x', x);
+            target.setAttribute('data-y', y);
   
-          updateConnections(context, nodes);
-        }
-      });
+            updateConnections(context, nodes);
+          }
+        });
+      }
     });
+  
+    // Remove nodes that no longer exist
+    Object.keys(nodes).forEach(key => {
+      if (!updatedData[key]) {
+        container.removeChild(nodes[key]);
+        delete nodes[key];
+      }
+    });
+  
+    // Redraw connections
+    updateConnections(context, nodes);
+  });
+  
   
     // Draw initial connections
     updateConnections(context, nodes);
